@@ -3,6 +3,7 @@ use core::arch::asm;
 pub mod error;
 pub mod i2c;
 pub mod syscall_number;
+pub mod i2cdev;
 
 use error::Error;
 
