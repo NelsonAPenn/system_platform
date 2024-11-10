@@ -1,4 +1,4 @@
-#![cfg_attr(not(test), no_std)]
+// #![cfg_attr(not(test), no_std)]
 use core::arch::asm;
 pub mod error;
 pub mod i2c;
@@ -41,8 +41,8 @@ pub fn open(path: &str, flags: OpenFlags) -> Result<FileDescriptor, Error> {
     }
 }
 
-pub fn close(fd: FileDescriptor) -> i32 {
-    let retval;
+pub fn close(fd: FileDescriptor) -> Result<(), Error> {
+    let retval: i32;
     unsafe {
         asm!(
             "svc 0",
@@ -50,11 +50,15 @@ pub fn close(fd: FileDescriptor) -> i32 {
             in("w8") syscall_number::CLOSE,
         )
     };
-    retval
+    if retval < 0 {
+        Err((-retval).into())
+    } else {
+        Ok(())
+    }
 }
 
-pub fn write(fd: FileDescriptor, bytes: &[u8]) -> i32 {
-    let bytes_written;
+pub fn write(fd: FileDescriptor, bytes: &[u8]) -> Result<i32, Error> {
+    let bytes_written: i32;
     let ptr: *const u8 = bytes.as_ptr();
     unsafe {
         asm!(
@@ -65,11 +69,15 @@ pub fn write(fd: FileDescriptor, bytes: &[u8]) -> i32 {
             in("w8") syscall_number::WRITE
         )
     };
-    bytes_written
+    if bytes_written < 0 {
+        Err((-bytes_written).into())
+    } else {
+        Ok(bytes_written)
+    }
 }
 
-pub fn read(fd: FileDescriptor, bytes: &mut [u8]) -> i32 {
-    let bytes_read;
+pub fn read(fd: FileDescriptor, bytes: &mut [u8]) -> Result<i32, Error> {
+    let bytes_read: i32;
     let ptr: *mut u8 = bytes.as_mut_ptr();
     unsafe {
         asm!(
@@ -80,7 +88,11 @@ pub fn read(fd: FileDescriptor, bytes: &mut [u8]) -> i32 {
             in("w8") syscall_number::READ
         )
     };
-    bytes_read
+    if bytes_read < 0 {
+        Err((-bytes_read).into())
+    } else {
+        Ok(bytes_read)
+    }
 }
 
 #[cfg(test)]
