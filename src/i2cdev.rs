@@ -6,8 +6,7 @@ pub struct I2cDev
     fd: FileDescriptor
 }
 
-impl I2cDev
-{
+impl I2cDev{
     pub fn new(devname: &str, address: u8) -> Result<Self, Error>
     {
         let fd = crate::open(devname, OpenFlags::ReadWrite)?;
@@ -16,16 +15,55 @@ impl I2cDev
             fd
         })
     }
+}
 
-    pub fn write(&self, buf: &[u8]) -> Result<i32, Error>
+/* would be std::io::Read if not no_std */
+impl I2cDev
+{
+    pub fn write(&mut self, buf: &[u8]) -> Result<usize, Error>
     {
         write(self.fd, buf)
     }
 
-    pub fn read(&self, buf: &mut [u8]) -> Result<i32, Error>
+    pub fn read(&mut self, buf: &mut [u8]) -> Result<usize, Error>
     {
         read(self.fd, buf)
     }
+}
+
+/* would be automatically handled if not no_std */
+impl I2cDev
+{
+    pub fn write_exact(&mut self, buf: &[u8]) -> Result<(), Error>
+    {
+        let count = self.write(buf)?;
+        if count != buf.len()
+        {
+            Err(Error::IoError)
+        }
+        else
+        {
+            Ok(())
+        }
+
+    }
+
+    pub fn read_exact(&mut self, buf: &mut[u8]) -> Result<(), Error>
+    {
+        let count = self.read(buf)?;
+        if count != buf.len()
+        {
+            Err(Error::IoError)
+        }
+        else
+        {
+            Ok(())
+        }
+
+    }
+
+
+
 }
 
 impl Drop for I2cDev

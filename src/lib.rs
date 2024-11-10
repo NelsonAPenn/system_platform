@@ -58,7 +58,7 @@ pub fn close(fd: FileDescriptor) -> Result<(), Error> {
     }
 }
 
-pub fn write(fd: FileDescriptor, bytes: &[u8]) -> Result<i32, Error> {
+pub fn write(fd: FileDescriptor, bytes: &[u8]) -> Result<usize, Error> {
     let bytes_written: i32;
     let ptr: *const u8 = bytes.as_ptr();
     unsafe {
@@ -73,11 +73,11 @@ pub fn write(fd: FileDescriptor, bytes: &[u8]) -> Result<i32, Error> {
     if bytes_written < 0 {
         Err((-bytes_written).into())
     } else {
-        Ok(bytes_written)
+        Ok(bytes_written as usize)
     }
 }
 
-pub fn read(fd: FileDescriptor, bytes: &mut [u8]) -> Result<i32, Error> {
+pub fn read(fd: FileDescriptor, bytes: &mut [u8]) -> Result<usize, Error> {
     let bytes_read: i32;
     let ptr: *mut u8 = bytes.as_mut_ptr();
     unsafe {
@@ -92,7 +92,7 @@ pub fn read(fd: FileDescriptor, bytes: &mut [u8]) -> Result<i32, Error> {
     if bytes_read < 0 {
         Err((-bytes_read).into())
     } else {
-        Ok(bytes_read)
+        Ok(bytes_read as usize)
     }
 }
 
