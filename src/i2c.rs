@@ -1,6 +1,5 @@
 use crate::syscall_number;
-use crate::FileDescriptor;
-use crate::error::Error;
+use crate::{FileDescriptor, RawOsError};
 use core::arch::asm;
 
 const I2C_RETRIES: u64 = 0x0701;
@@ -24,7 +23,7 @@ pub struct I2cSmbusIoctlData
 }
 */
 
-pub fn i2c_slave(fd: FileDescriptor, address: u32) -> Result<(), Error> {
+pub fn i2c_slave(fd: FileDescriptor, address: u32) -> Result<(), RawOsError> {
     let retval: i32;
     unsafe {
         asm!(

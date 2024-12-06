@@ -1,13 +1,10 @@
-// #![cfg_attr(not(test), no_std)]
 use core::arch::asm;
-pub mod error;
 pub mod i2c;
 pub mod syscall_number;
 pub mod i2cdev;
 
-use error::Error;
-
 pub type FileDescriptor = i32;
+pub type RawOsError = i32;
 
 pub const STDIN: FileDescriptor = 0;
 pub const STDOUT: FileDescriptor = 1;
@@ -22,7 +19,7 @@ pub enum OpenFlags {
     ReadWrite = 2,
 }
 
-pub fn open(path: &str, flags: OpenFlags) -> Result<FileDescriptor, Error> {
+pub fn open(path: &str, flags: OpenFlags) -> Result<FileDescriptor, RawOsError> {
     let fd;
     let ptr: *const u8 = path.as_ptr();
     unsafe {
@@ -42,7 +39,7 @@ pub fn open(path: &str, flags: OpenFlags) -> Result<FileDescriptor, Error> {
     }
 }
 
-pub fn close(fd: FileDescriptor) -> Result<(), Error> {
+pub fn close(fd: FileDescriptor) -> Result<(), RawOsError> {
     let retval: i32;
     unsafe {
         asm!(
@@ -58,7 +55,7 @@ pub fn close(fd: FileDescriptor) -> Result<(), Error> {
     }
 }
 
-pub fn write(fd: FileDescriptor, bytes: &[u8]) -> Result<usize, Error> {
+pub fn write(fd: FileDescriptor, bytes: &[u8]) -> Result<usize, RawOsError> {
     let bytes_written: i32;
     let ptr: *const u8 = bytes.as_ptr();
     unsafe {
@@ -77,7 +74,7 @@ pub fn write(fd: FileDescriptor, bytes: &[u8]) -> Result<usize, Error> {
     }
 }
 
-pub fn read(fd: FileDescriptor, bytes: &mut [u8]) -> Result<usize, Error> {
+pub fn read(fd: FileDescriptor, bytes: &mut [u8]) -> Result<usize, RawOsError> {
     let bytes_read: i32;
     let ptr: *mut u8 = bytes.as_mut_ptr();
     unsafe {
