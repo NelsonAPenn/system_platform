@@ -1,5 +1,5 @@
-use system_platform::i2cdev::I2cDev;
 use std::io::{Read, Write};
+use system_platform::i2cdev::I2cDev;
 
 fn main() {
     let mut i2cdev = I2cDev::new("/dev/i2c-1\0", 0x41).unwrap();
