@@ -6,7 +6,7 @@ This could be theoretically used to write `#![no_std]` programs that run on Linu
 
 I started with aarch64, but more architectures could be added.
 
-Given infinite time and a better source of documentation, this could become an implementation of a new Rust standard library target, e.g. `aarch64-linux-unknown`, `aarch64-linux-none`, or something else.
+Given infinite time and a better source of documentation, this could become an implementation of a new Rust standard library target, e.g. `aarch64-linux-unknown`, `aarch64-linux-none`, or similar.
 
 ## Usefulness or lack thereof
 
