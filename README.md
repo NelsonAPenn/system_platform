@@ -12,4 +12,4 @@ Given infinite time and a better source of documentation, this could become an i
 
 This project is only for fun. If you want the benefits of this library with stability and support, statically link musl.
 
-I will say though, that if a similar implementation were created for MacOS (perhhaps even some or most of these syscalls are the same given shared Unix heritage), it could solve the horrendous headache of cross-compilation for a Mac, which can only currently be done by jumping through licensing hoops and coping the MacOS SDK out of Xcode... yada yada.
+I will say though, that if a similar implementation were created for MacOS (perhaps some or even most of these syscalls are the same given shared Unix heritage), it could solve the horrendous headache of cross-compilation for a Mac, which can only currently be done by jumping through licensing hoops and coping the MacOS SDK out of Xcode... yada yada.
