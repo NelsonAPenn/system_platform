@@ -22,6 +22,16 @@ pub fn open(path: &str, flags: OpenFlags) -> Result<FileDescriptor, RawOsError> 
     let fd;
     let ptr: *const u8 = path.as_ptr();
     unsafe {
+        #[cfg(target_arch="arm")]
+        asm!(
+            "svc 0",
+            inout("r0") 0 /* dir fd, if not absolute */ => fd,
+            in("r1") ptr,
+            in("r2") flags as i32,
+            in("r3") 0, /* mode */
+            in("r8") syscall_number::OPEN_AT
+        )
+        #[cfg(target_arch="aarch64")]
         asm!(
             "svc 0",
             inout("x0") 0 /* dir fd, if not absolute */ => fd,
@@ -41,6 +51,13 @@ pub fn open(path: &str, flags: OpenFlags) -> Result<FileDescriptor, RawOsError> 
 pub fn close(fd: FileDescriptor) -> Result<(), RawOsError> {
     let retval: i32;
     unsafe {
+        #[cfg(target_arch = "arm")]
+        asm!(
+            "svc 0",
+            inout("r0") fd => retval,
+            in("r8") syscall_number::CLOSE,
+        )
+        #[cfg(target_arch ="aarch64")]
         asm!(
             "svc 0",
             inout("x0") fd => retval,
@@ -58,6 +75,15 @@ pub fn write(fd: FileDescriptor, bytes: &[u8]) -> Result<usize, RawOsError> {
     let bytes_written: i32;
     let ptr: *const u8 = bytes.as_ptr();
     unsafe {
+        #[cfg(target_arch = "arm")]
+        asm!(
+            "svc 0",
+            inout("r0") fd => bytes_written,
+            in("r1") ptr,
+            in("r2") bytes.len(),
+            in("r8") syscall_number::WRITE
+        )
+        #[cfg(target_arch = "aarch64")]
         asm!(
             "svc 0",
             inout("w0") fd => bytes_written,
@@ -77,6 +103,15 @@ pub fn read(fd: FileDescriptor, bytes: &mut [u8]) -> Result<usize, RawOsError> {
     let bytes_read: i32;
     let ptr: *mut u8 = bytes.as_mut_ptr();
     unsafe {
+        #[cfg(target_arch = "arm")]
+        asm!(
+            "svc 0",
+            inout("r0") fd => bytes_read,
+            in("r1") ptr,
+            in("r2") bytes.len(),
+            in("r8") syscall_number::READ
+        )
+        #[cfg(target_arch = "aarch64")]
         asm!(
             "svc 0",
             inout("w0") fd => bytes_read,
@@ -98,9 +133,8 @@ mod tests {
 
     #[test]
     fn it_works() {
-        let fd = open("/dev/i2c-1\0", OpenFlags::ReadWrite);
+        let fd = open("/dev/i2c-1\0", OpenFlags::ReadWrite).unwrap();
         println!("{}", fd);
-        let ret = close(fd);
-        println!("ret {}", ret);
+        close(fd).unwrap();
     }
 }

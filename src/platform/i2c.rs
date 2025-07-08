@@ -29,6 +29,15 @@ pub struct I2cSmbusIoctlData
 pub fn i2c_slave(fd: FileDescriptor, address: u32) -> Result<(), RawOsError> {
     let retval: i32;
     unsafe {
+        #[cfg(target_arch = "arm")]
+        asm!(
+            "svc 0",
+            inout("r0") fd => retval,
+            in("r1") I2C_SLAVE,
+            in("r2") address,
+            in("r8") syscall_number::IOCTL
+        )
+        #[cfg(target_arch = "aarch64")]
         asm!(
             "svc 0",
             inout("x0") fd => retval,
