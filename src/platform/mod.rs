@@ -45,7 +45,7 @@ pub fn open(path: &str, flags: OpenFlags) -> Result<FileDescriptor, RawOsError> 
             )
         }
     };
-    if fd > 0 {
+    if fd >= 0 {
         Ok(fd)
     } else {
         Err((-fd).into())
