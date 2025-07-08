@@ -34,7 +34,7 @@ pub fn i2c_slave(fd: FileDescriptor, address: u32) -> Result<(), RawOsError> {
             asm!(
                 "svc 0",
                 inout("r0") fd => retval,
-                in("r1") I2C_SLAVE,
+                in("r1") I2C_SLAVE as u32,
                 in("r2") address,
                 in("r8") syscall_number::IOCTL
             )
