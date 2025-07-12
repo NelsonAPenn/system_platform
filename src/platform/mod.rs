@@ -30,7 +30,7 @@ pub fn open(path: &str, flags: OpenFlags) -> Result<FileDescriptor, RawOsError> 
                 in("r1") ptr,
                 in("r2") flags as i32,
                 in("r3") 0, /* mode */
-                in("r8") syscall_number::OPEN_AT
+                in("r7") syscall_number::OPEN_AT
             )
         }
         #[cfg(target_arch = "aarch64")]
@@ -60,7 +60,7 @@ pub fn close(fd: FileDescriptor) -> Result<(), RawOsError> {
             asm!(
                 "svc 0",
                 inout("r0") fd => retval,
-                in("r8") syscall_number::CLOSE,
+                in("r7") syscall_number::CLOSE,
             )
         }
         #[cfg(target_arch = "aarch64")]
@@ -90,7 +90,7 @@ pub fn write(fd: FileDescriptor, bytes: &[u8]) -> Result<usize, RawOsError> {
                 inout("r0") fd => bytes_written,
                 in("r1") ptr,
                 in("r2") bytes.len(),
-                in("r8") syscall_number::WRITE
+                in("r7") syscall_number::WRITE
             )
         }
         #[cfg(target_arch = "aarch64")]
@@ -122,7 +122,7 @@ pub fn read(fd: FileDescriptor, bytes: &mut [u8]) -> Result<usize, RawOsError> {
                 inout("r0") fd => bytes_read,
                 in("r1") ptr,
                 in("r2") bytes.len(),
-                in("r8") syscall_number::READ
+                in("r7") syscall_number::READ
             )
         }
         #[cfg(target_arch = "aarch64")]

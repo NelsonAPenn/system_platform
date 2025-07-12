@@ -36,7 +36,7 @@ pub fn i2c_slave(fd: FileDescriptor, address: u32) -> Result<(), RawOsError> {
                 inout("r0") fd => retval,
                 in("r1") I2C_SLAVE as u32,
                 in("r2") address,
-                in("r8") syscall_number::IOCTL
+                in("r7") syscall_number::IOCTL
             )
         }
         #[cfg(target_arch = "aarch64")]
