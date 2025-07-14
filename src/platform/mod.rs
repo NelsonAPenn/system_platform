@@ -44,6 +44,17 @@ pub fn open(path: &str, flags: OpenFlags) -> Result<FileDescriptor, RawOsError> 
                 in("w8") syscall_number::OPEN_AT
             )
         }
+        #[cfg(target_arch = "x86_64")]
+        {
+            asm!(
+                "syscall",
+                in("rdi") 0 /* dir fd, if not absolute */,
+                in("rsi") ptr,
+                in("rdx") flags as i32,
+                in("r10") 0, /* mode */
+                inout("rax") syscall_number::OPEN_AT => fd,
+            )
+        }
     };
     if fd >= 0 {
         Ok(fd)
@@ -69,6 +80,14 @@ pub fn close(fd: FileDescriptor) -> Result<(), RawOsError> {
                 "svc 0",
                 inout("x0") fd => retval,
                 in("w8") syscall_number::CLOSE,
+            )
+        }
+        #[cfg(target_arch = "x86_64")]
+        {
+            asm!(
+                "syscall",
+                in("rdi") fd,
+                inout("rax") syscall_number::CLOSE => retval,
             )
         }
     };
@@ -103,6 +122,16 @@ pub fn write(fd: FileDescriptor, bytes: &[u8]) -> Result<usize, RawOsError> {
                 in("w8") syscall_number::WRITE
             )
         }
+        #[cfg(target_arch = "x86_64")]
+        {
+            asm!(
+                "syscall",
+                in("rdi") fd,
+                in("rsi") ptr,
+                in("rdx") bytes.len(),
+                inout("rax") syscall_number::WRITE => bytes_written,
+            )
+        }
     };
     if bytes_written < 0 {
         Err((-bytes_written).into())
@@ -135,6 +164,16 @@ pub fn read(fd: FileDescriptor, bytes: &mut [u8]) -> Result<usize, RawOsError> {
                 in("w8") syscall_number::READ
             )
         }
+        #[cfg(target_arch = "x86_64")]
+        {
+            asm!(
+                "syscall",
+                in("rdi") fd,
+                in("rsi") ptr,
+                in("rdx") bytes.len(),
+                inout("rax") syscall_number::READ => bytes_read,
+            )
+        }
     };
     if bytes_read < 0 {
         Err((-bytes_read).into())
@@ -152,5 +191,20 @@ mod tests {
         let fd = open("/dev/i2c-1\0", OpenFlags::ReadWrite).unwrap();
         println!("{}", fd);
         close(fd).unwrap();
+    }
+
+    #[test]
+    fn stdout() {
+        let fd = STDOUT;
+        write(fd, b"Yaaargh!");
+    }
+
+    #[test]
+    fn echo() {
+        let fd = STDIN;
+        println!("Type 3 characters:");
+        let mut buf = [0; 3];
+        read(fd, &mut buf);
+        println!("You typed {}", str::from_utf8(&buf).unwrap());
     }
 }

@@ -49,6 +49,16 @@ pub fn i2c_slave(fd: FileDescriptor, address: u32) -> Result<(), RawOsError> {
                 in("w8") syscall_number::IOCTL
             )
         }
+        #[cfg(target_arch = "x86_64")]
+        {
+            asm!(
+                "syscall",
+                in("rdi") fd,
+                in("rsi") I2C_SLAVE,
+                in("rdx") address,
+                inout("rax") syscall_number::IOCTL => retval,
+            )
+        }
     };
     if retval < 0 {
         Err((-retval).into())

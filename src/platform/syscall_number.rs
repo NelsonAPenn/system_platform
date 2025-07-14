@@ -17,3 +17,12 @@ mod syscall_no {
     pub const READ: u32 = 3;
     pub const WRITE: u32 = 4;
 }
+
+#[cfg(target_arch = "x86_64")]
+mod syscall_no {
+    pub const IOCTL: u32 = 64;
+    pub const OPEN_AT: u32 = 257;
+    pub const CLOSE: u32 = 3;
+    pub const READ: u32 = 0;
+    pub const WRITE: u32 = 1;
+}
