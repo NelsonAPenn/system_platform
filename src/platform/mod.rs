@@ -94,6 +94,6 @@ mod tests {
         println!("Type 3 characters:");
         let mut buf = [0; 3];
         read(fd, &mut buf);
-        println!("You typed {}", str::from_utf8(&buf).unwrap());
+        println!("You typed {}", std::str::from_utf8(&buf).unwrap());
     }
 }
