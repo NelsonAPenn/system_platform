@@ -7,6 +7,8 @@ mod syscall_no {
     pub const CLOSE: u32 = 57;
     pub const READ: u32 = 63;
     pub const WRITE: u32 = 64;
+    pub const EXIT: u32 = 93;
+    pub const EXIT_GROUP: u32 = 94;
 }
 
 #[cfg(target_arch = "arm")]
@@ -16,6 +18,8 @@ mod syscall_no {
     pub const CLOSE: u32 = 6;
     pub const READ: u32 = 3;
     pub const WRITE: u32 = 4;
+    pub const EXIT: u32 = 1;
+    pub const EXIT_GROUP: u32 = 248;
 }
 
 #[cfg(target_arch = "x86_64")]
@@ -25,4 +29,6 @@ mod syscall_no {
     pub const CLOSE: u32 = 3;
     pub const READ: u32 = 0;
     pub const WRITE: u32 = 1;
+    pub const EXIT: u32 = 66;
+    pub const EXIT_GROUP: u32 = 231;
 }

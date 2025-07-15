@@ -1,5 +1,6 @@
 use crate::platform::{syscall_macro::syscall, syscall_number, FileDescriptor, RawOsError};
 use core::arch::asm;
+use core::result::{Result, Result::Err, Result::Ok};
 use ioctl_consts::*;
 
 #[allow(dead_code)]

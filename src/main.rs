@@ -1,13 +1,14 @@
-use std::io::{Read, Write};
-use system_platform::i2cdev::I2cDev;
+#![no_std]
+#![no_main]
+
+use system_platform::platform::write;
+use system_platform::platform::STDOUT;
+
+#[panic_handler]
+fn panic_handler(info: &core::panic::PanicInfo) -> ! {
+    system_platform::platform::exit(1)
+}
 
 fn main() {
-    let mut i2cdev = I2cDev::new("/dev/i2c-1\0", 0x41).unwrap();
-    let mut buf = [0xd4];
-
-    i2cdev.write_all(&buf).unwrap();
-
-    i2cdev.read_exact(&mut buf).unwrap();
-
-    println!("got reading {}", buf[0]);
+    write(STDOUT, b"Hello, world!\n").unwrap();
 }

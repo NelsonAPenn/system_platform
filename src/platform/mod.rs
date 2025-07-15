@@ -2,6 +2,7 @@ pub mod i2c;
 mod syscall_macro;
 mod syscall_number;
 use core::arch::asm;
+use core::result::{Result, Result::Err, Result::Ok};
 
 use syscall_macro::syscall;
 
@@ -71,6 +72,12 @@ pub fn read(fd: FileDescriptor, bytes: &mut [u8]) -> Result<usize, RawOsError> {
     }
 }
 
+pub fn exit(code: usize) -> ! {
+    let _retval: u32;
+    syscall!(syscall_number::EXIT_GROUP, _retval, code);
+    loop {}
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -85,7 +92,7 @@ mod tests {
     #[test]
     fn stdout() {
         let fd = STDOUT;
-        write(fd, b"Yaaargh!");
+        write(fd, b"Yaaargh!").unwrap();
     }
 
     #[test]
@@ -93,7 +100,7 @@ mod tests {
         let fd = STDIN;
         println!("Type 3 characters:");
         let mut buf = [0; 3];
-        read(fd, &mut buf);
+        read(fd, &mut buf).unwrap();
         println!("You typed {}", std::str::from_utf8(&buf).unwrap());
     }
 }
