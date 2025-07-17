@@ -2,12 +2,15 @@
 
 Linux syscalls in inline assembly from Rust (instead of using libc)-- just for fun.
 
+This is primarily a learning exercise for me, I recently discovered a bunch of
+other crates that have already done this.
+
 Current small feature set is supported on ARM64, ARM32, and x86_64.
 
 ## Features
 
-- a novel (probably) syscall! macro which factors out the syscall calling
-  conventions for the major architectures.
+- a syscall! macro which factors out the syscall calling conventions for the
+  major architectures.
 - light wrapping functions for the syscalls above at the would-be-libc level of
   abstraction
 
