@@ -9,6 +9,8 @@ fn panic_handler(info: &core::panic::PanicInfo) -> ! {
     system_platform::platform::exit(1)
 }
 
-fn main() {
+#[no_mangle]
+fn _start() {
     write(STDOUT, b"Hello, world!\n").unwrap();
+    system_platform::platform::exit(0);
 }
