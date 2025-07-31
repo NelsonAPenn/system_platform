@@ -28,9 +28,9 @@ Current small feature set is supported on ARM64, ARM32, and x86_64.
 
 ## Future directions
 
-Given infinite time and a better source of documentation, this could become an
-implementation of a new Rust standard library target (most likely resulting in
-the triples `aarch64-linux-none`, `x86_64-linux-none`, etc.).
+Given infinite time and a better source of documentation, this could be used to
+provide std & alloc support for the
+[x86_64-unknown-linux-none target](https://doc.rust-lang.org/rustc/platform-support/x86_64-unknown-linux-none.html).
 
 ## Usefulness or lack thereof
 
