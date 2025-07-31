@@ -16,12 +16,13 @@ Current small feature set is supported on ARM64, ARM32, and x86_64.
 
 ## Interesting effects of this approach
 
-1. This could be theoretically used to write `#![no_std]` programs that run on
-   Linux.
-  - This is in progress but not quite working, but main can be built with target
-    x86_64-unknown-none and `#![no_std]`, it just segfaults.
-  - I believe this is likely the entrypoint still not being correct. And maybe
-    needing to "set up the stack".
+1. This can be used to write `#![no_std]` programs that run on Linux.
+  - To try this out, build the binary provided with the following cargo options:
+    `cargo build --target x86_64-unknown-none --no-default-features`.
+  - This works only when using `relocation-model=static`, which has been added
+    to `.cargo/config.toml`
+  - TODO: what does it take to support PIC? I believe the PLT / GOT runtime
+    stuff would have to be implemented.
 2. As a result of 1, these executables would not depend on libc and might be a
    little more portable. From what I understand, Go uses this approach.
 
