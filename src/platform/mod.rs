@@ -23,11 +23,9 @@ pub enum OpenFlags {
 }
 
 pub fn open(path: &str, flags: OpenFlags) -> Result<FileDescriptor, RawOsError> {
-    let fd;
     let ptr: *const u8 = path.as_ptr();
-    syscall!(
+    let fd = syscall!(
         syscall_number::OPEN_AT,
-        fd,
         0, /* fd of directory if not absolute*/
         ptr,
         flags as i32,
@@ -41,8 +39,7 @@ pub fn open(path: &str, flags: OpenFlags) -> Result<FileDescriptor, RawOsError> 
 }
 
 pub fn close(fd: FileDescriptor) -> Result<(), RawOsError> {
-    let retval: i32;
-    syscall!(syscall_number::CLOSE, retval, fd);
+    let retval = syscall!(syscall_number::CLOSE, fd);
     if retval < 0 {
         Err((-retval).into())
     } else {
@@ -51,9 +48,8 @@ pub fn close(fd: FileDescriptor) -> Result<(), RawOsError> {
 }
 
 pub fn write(fd: FileDescriptor, bytes: &[u8]) -> Result<usize, RawOsError> {
-    let bytes_written: i32;
     let ptr: *const u8 = bytes.as_ptr();
-    syscall!(syscall_number::WRITE, bytes_written, fd, ptr, bytes.len());
+    let bytes_written = syscall!(syscall_number::WRITE, fd, ptr, bytes.len());
     if bytes_written < 0 {
         Err((-bytes_written).into())
     } else {
@@ -62,9 +58,8 @@ pub fn write(fd: FileDescriptor, bytes: &[u8]) -> Result<usize, RawOsError> {
 }
 
 pub fn read(fd: FileDescriptor, bytes: &mut [u8]) -> Result<usize, RawOsError> {
-    let bytes_read: i32;
     let ptr: *mut u8 = bytes.as_mut_ptr();
-    syscall!(syscall_number::READ, bytes_read, fd, ptr, bytes.len());
+    let bytes_read = syscall!(syscall_number::READ, fd, ptr, bytes.len());
     if bytes_read < 0 {
         Err((-bytes_read).into())
     } else {
@@ -73,8 +68,7 @@ pub fn read(fd: FileDescriptor, bytes: &mut [u8]) -> Result<usize, RawOsError> {
 }
 
 pub fn exit(code: usize) -> ! {
-    let _retval: u32;
-    syscall!(syscall_number::EXIT_GROUP, _retval, code);
+    let _retval = syscall!(syscall_number::EXIT_GROUP, code);
     loop {}
 }
 

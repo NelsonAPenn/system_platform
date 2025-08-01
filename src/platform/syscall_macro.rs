@@ -1,11 +1,13 @@
 macro_rules! syscall {
-    ($syscall_no: expr, $ret: ident) => {
+    ($syscall_no: expr) => {
+        {
+        let ret: i32;
         unsafe {
             #[cfg(target_arch = "arm")]
             {
                 asm!(
                     "svc 0",
-                    out("r0") => $ret,
+                    out("r0") => ret,
                     in("r7") $syscall_no,
                 )
             }
@@ -13,7 +15,7 @@ macro_rules! syscall {
             {
                 asm!(
                     "svc 0",
-                    out("x0") => $ret,
+                    out("x0") => ret,
                     in("w8") $syscall_no,
                 )
             }
@@ -21,19 +23,22 @@ macro_rules! syscall {
             {
                 asm!(
                     "syscall",
-                    inout("rax") $syscall_no => $ret,
+                    inout("rax") $syscall_no => ret,
                 )
             }
         }
+        ret}
     };
 
-    ($syscall_no: expr, $ret: ident, $a0: expr) => {
+    ($syscall_no: expr, $a0: expr) => {
+        {
+        let ret: i32;
         unsafe {
             #[cfg(target_arch = "arm")]
             {
                 asm!(
                     "svc 0",
-                    inout("r0") $a0 => $ret,
+                    inout("r0") $a0 => ret,
                     in("r7") $syscall_no,
                 )
             }
@@ -41,7 +46,7 @@ macro_rules! syscall {
             {
                 asm!(
                     "svc 0",
-                    inout("x0") $a0 => $ret,
+                    inout("x0") $a0 => ret,
                     in("w8") $syscall_no,
                 )
             }
@@ -50,19 +55,23 @@ macro_rules! syscall {
                 asm!(
                     "syscall",
                     in("rdi") $a0,
-                    inout("rax") $syscall_no => $ret,
+                    inout("rax") $syscall_no => ret,
                 )
             }
         }
+        ret
+        }
     };
 
-    ($syscall_no: expr, $ret: ident, $a0: expr, $a1: expr) => {
+    ($syscall_no: expr, $a0: expr, $a1: expr) => {
+        {
+        let ret: i32;
         unsafe {
             #[cfg(target_arch = "arm")]
             {
                 asm!(
                     "svc 0",
-                    inout("r0") $a0 => $ret,
+                    inout("r0") $a0 => ret,
                     in("r1") $a1,
                     in("r7") $syscall_no,
                 )
@@ -71,7 +80,7 @@ macro_rules! syscall {
             {
                 asm!(
                     "svc 0",
-                    inout("x0") $a0 => $ret,
+                    inout("x0") $a0 => ret,
                     in("x1") $a1,
                     in("w8") $syscall_no,
                 )
@@ -82,19 +91,22 @@ macro_rules! syscall {
                     "syscall",
                     in("rdi") $a0,
                     in("rsi") $a1,
-                    inout("rax") $syscall_no => $ret,
+                    inout("rax") $syscall_no => ret,
                 )
             }
         }
+        ret}
     };
 
-    ($syscall_no: expr, $ret: ident, $a0: expr, $a1: expr, $a2: expr) => {
+    ($syscall_no: expr, $a0: expr, $a1: expr, $a2: expr) => {
+        {
+        let ret: i32;
         unsafe {
             #[cfg(target_arch = "arm")]
             {
                 asm!(
                     "svc 0",
-                    inout("r0") $a0 => $ret,
+                    inout("r0") $a0 => ret,
                     in("r1") $a1,
                     in("r2") $a2,
                     in("r7") $syscall_no,
@@ -104,7 +116,7 @@ macro_rules! syscall {
             {
                 asm!(
                     "svc 0",
-                    inout("x0") $a0 => $ret,
+                    inout("x0") $a0 => ret,
                     in("x1") $a1,
                     in("x2") $a2,
                     in("w8") $syscall_no,
@@ -117,19 +129,22 @@ macro_rules! syscall {
                     in("rdi") $a0,
                     in("rsi") $a1,
                     in("rdx") $a2,
-                    inout("rax") $syscall_no => $ret,
+                    inout("rax") $syscall_no => ret,
                 )
             }
         }
+        ret}
     };
 
-    ($syscall_no: expr, $ret: ident, $a0: expr, $a1: expr, $a2: expr, $a3: expr) => {
+    ($syscall_no: expr, $a0: expr, $a1: expr, $a2: expr, $a3: expr) => {
+        {
+        let ret: i32;
         unsafe {
             #[cfg(target_arch = "arm")]
             {
                 asm!(
                     "svc 0",
-                    inout("r0") $a0 => $ret,
+                    inout("r0") $a0 => ret,
                     in("r1") $a1,
                     in("r2") $a2,
                     in("r3") $a3,
@@ -140,7 +155,7 @@ macro_rules! syscall {
             {
                 asm!(
                     "svc 0",
-                    inout("x0") $a0 => $ret,
+                    inout("x0") $a0 => ret,
                     in("x1") $a1,
                     in("x2") $a2,
                     in("x3") $a3,
@@ -155,19 +170,23 @@ macro_rules! syscall {
                     in("rsi") $a1,
                     in("rdx") $a2,
                     in("r10") $a3,
-                    inout("rax") $syscall_no => $ret,
+                    inout("rax") $syscall_no => ret,
                 )
             }
         }
+        ret
+        }
     };
 
-    ($syscall_no: expr, $ret: ident, $a0: expr, $a1: expr, $a2: expr, $a3: expr, $a4: expr) => {
+    ($syscall_no: expr, $a0: expr, $a1: expr, $a2: expr, $a3: expr, $a4: expr) => {
+        {
+            let ret: i32;
         unsafe {
             #[cfg(target_arch = "arm")]
             {
                 asm!(
                     "svc 0",
-                    inout("r0") $a0 => $ret,
+                    inout("r0") $a0 => ret,
                     in("r1") $a1,
                     in("r2") $a2,
                     in("r3") $a3,
@@ -179,7 +198,7 @@ macro_rules! syscall {
             {
                 asm!(
                     "svc 0",
-                    inout("x0") $a0 => $ret,
+                    inout("x0") $a0 => ret,
                     in("x1") $a1,
                     in("x2") $a2,
                     in("x3") $a3,
@@ -196,19 +215,22 @@ macro_rules! syscall {
                     in("rdx") $a2,
                     in("r10") $a3,
                     in("r8") $a4,
-                    inout("rax") $syscall_no => $ret,
+                    inout("rax") $syscall_no => ret,
                 )
             }
         }
+        ret}
     };
 
-    ($syscall_no: expr, $ret: ident, $a0: expr, $a1: expr, $a2: expr, $a3: expr, $a4: expr, $a5: expr) => {
+    ($syscall_no: expr, $a0: expr, $a1: expr, $a2: expr, $a3: expr, $a4: expr, $a5: expr) => {
+        {
+            let ret: i32;
         unsafe {
             #[cfg(target_arch = "arm")]
             {
                 asm!(
                     "svc 0",
-                    inout("r0") $a0 => $ret,
+                    inout("r0") $a0 => ret,
                     in("r1") $a1,
                     in("r2") $a2,
                     in("r3") $a3,
@@ -221,7 +243,7 @@ macro_rules! syscall {
             {
                 asm!(
                     "svc 0",
-                    inout("x0") $a0 => $ret,
+                    inout("x0") $a0 => ret,
                     in("x1") $a1,
                     in("x2") $a2,
                     in("x3") $a3,
@@ -240,10 +262,11 @@ macro_rules! syscall {
                     in("r10") $a3,
                     in("r8") $a4,
                     in("r9") $a5,
-                    inout("rax") $syscall_no => $ret,
+                    inout("rax") $syscall_no => ret,
                 )
             }
         }
+        ret}
     };
 }
 

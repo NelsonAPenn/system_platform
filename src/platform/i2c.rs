@@ -28,8 +28,7 @@ pub struct I2cSmbusIoctlData
 */
 
 pub fn i2c_slave(fd: FileDescriptor, address: u32) -> Result<(), RawOsError> {
-    let retval: i32;
-    syscall!(syscall_number::IOCTL, retval, fd, I2C_SLAVE, address);
+    let retval = syscall!(syscall_number::IOCTL, fd, I2C_SLAVE, address);
     if retval < 0 {
         Err((-retval).into())
     } else {
