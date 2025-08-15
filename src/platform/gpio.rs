@@ -158,7 +158,7 @@ pub fn get_chip_info(chip_fd: FileDescriptor) -> Result<GpioChipInfo, RawOsError
         syscall_number::IOCTL,
         chip_fd,
         ioctl_const::GET_CHIP_INFO,
-        (&mut chip_info as *mut GpioChipInfo)
+        &mut chip_info
     );
 
     if retval < 0 {
@@ -204,26 +204,30 @@ mod tests {
         }
     }
 
+
+    #[test]
     fn gpio_works() {
         let chip_fd = open("/dev/gpiochip0\0", crate::platform::OpenFlags::ReadWrite).unwrap();
 
         let mut consumer = [0; GPIO_MAX_NAME_SIZE];
-        consumer.copy_from_slice(b"");
+        let consumer_str = b"my-gpio-consumer";
+        consumer[..consumer_str.len()].copy_from_slice(consumer_str);
+        let pins = [6, 5, 16, 25, 26];
         let mut offsets = [0; GPIO_LINES_MAX];
-        offsets[0] = 0;
+        offsets[..pins.len()].copy_from_slice(&pins);
 
         let mut req = GpioLineRequest {
             offsets,
             consumer,
-            num_lines: 4,
-            padding: [0; 5],
             config: GpioLineConfig {
                 flags: line_flag::OUTPUT,
                 num_attrs: 0,
                 padding: [0; 5],
                 attrs: unsafe { std::mem::zeroed() },
             },
+            num_lines: pins.len() as u32,
             event_buffer_size: 0,
+            padding: [0; 5],
             fd: 0,
         };
         let line_fd = get_line(chip_fd, &mut req).unwrap();
