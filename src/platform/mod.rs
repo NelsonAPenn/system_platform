@@ -1,3 +1,4 @@
+pub mod gpio;
 pub mod i2c;
 mod syscall_macro;
 mod syscall_number;
