@@ -114,7 +114,7 @@ pub fn get_line(
         syscall_number::IOCTL,
         chip_fd,
         ioctl_const::GET_LINE,
-        &request
+        request
     );
     if retval < 0 {
         Err((-retval).into())
