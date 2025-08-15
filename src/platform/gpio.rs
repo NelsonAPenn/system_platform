@@ -105,7 +105,7 @@ const GPIO_LINE_NUM_ATTRS_MAX: usize = 10;
 pub struct GpioLineConfig {
     pub flags: u64,
     pub num_attrs: u32,
-    padding: [u32; 5],
+    pub padding: [u32; 5],
     pub attrs: [GpioLineConfigAttribute; GPIO_LINE_NUM_ATTRS_MAX],
 }
 
