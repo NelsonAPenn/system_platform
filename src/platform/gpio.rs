@@ -64,6 +64,7 @@ pub struct GpioLineConfigAttribute {
 const GPIO_LINE_NUM_ATTRS_MAX: usize = 10;
 
 #[repr(C)]
+#[derive(Debug)]
 pub struct GpioLineConfig {
     pub flags: u64,
     pub num_attrs: u32,
@@ -72,6 +73,7 @@ pub struct GpioLineConfig {
 }
 
 #[repr(C)]
+#[derive(Debug)]
 pub struct GpioLineRequest {
     pub offsets: [u32; GPIO_LINES_MAX],
     pub consumer: [u8; GPIO_MAX_NAME_SIZE],
