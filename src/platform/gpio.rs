@@ -231,6 +231,7 @@ mod tests {
             fd: 0,
         };
         let line_fd = get_line(chip_fd, &mut req).unwrap();
+        println!("chip: {}, line: {}", chip_fd, line_fd);
         set_values(
             line_fd,
             &GpioLineValues {
