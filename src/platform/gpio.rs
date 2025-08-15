@@ -43,54 +43,16 @@ const GPIO_LINES_MAX: usize = 64;
 
 #[repr(C)]
 #[derive(Debug)]
-pub enum GpioLineAttribute {
-    Flags {
-        id: u32,
-        padding: u32,
-        flags: u64,
-    },
-    Values {
-        id: u32,
-        padding: u32,
-        values: u64,
-    },
-    Debounce {
-        id: u32,
-        padding: u32,
-        debounce_period_us: u32,
-    },
+pub struct GpioLineAttribute {
+    pub id: u32,
+    pub padding: u32,
+    pub union: u64, // flags: u64 | values: u64 | debounce_period_us: u32
 }
 
 mod line_attr_id {
     pub const FLAGS: u32 = 1;
     pub const OUTPUT_VALUES: u32 = 2;
     pub const DEBOUNCE: u32 = 3;
-}
-
-impl GpioLineAttribute {
-    pub fn new_flags(flags: u64) -> Self {
-        Self::Flags {
-            id: line_attr_id::FLAGS,
-            padding: 0,
-            flags,
-        }
-    }
-
-    pub fn new_values(values: u64) -> Self {
-        Self::Values {
-            id: line_attr_id::OUTPUT_VALUES,
-            padding: 0,
-            values,
-        }
-    }
-
-    pub fn new_debounce(debounce_period_us: u32) -> Self {
-        Self::Debounce {
-            id: line_attr_id::DEBOUNCE,
-            padding: 0,
-            debounce_period_us,
-        }
-    }
 }
 
 #[repr(C)]
@@ -274,4 +236,13 @@ mod tests {
         )
         .unwrap();
     }
+    
+    #[test]
+    fn sizes_are_correct()
+    {
+        assert_eq!(std::mem::size_of::<GpioLineAttribute>(), 16);
+        assert_eq!(std::mem::size_of::<GpioLineConfig>(), 272);
+        assert_eq!(std::mem::size_of::<GpioLineRequest>(), 592);
+    }
 }
+
