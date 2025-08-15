@@ -161,17 +161,18 @@ pub fn get_line(
     }
 }
 
-pub fn get_values(line_fd: FileDescriptor, values: &mut GpioLineValues) -> Result<(), RawOsError> {
+pub fn get_values(line_fd: FileDescriptor, mask: u64) -> Result<GpioLineValues, RawOsError> {
+    let mut gpio_values = GpioLineValues { bits: 0, mask };
     let retval = syscall!(
         syscall_number::IOCTL,
         line_fd,
         ioctl_const::LINE_GET_VALUES,
-        values
+        &mut gpio_values
     );
     if retval < 0 {
         Err((-retval).into())
     } else {
-        Ok(())
+        Ok(gpio_values)
     }
 }
 
