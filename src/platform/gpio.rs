@@ -19,7 +19,7 @@ struct GpiochipInfo {
 }
 
 #[repr(C)]
-struct GpioLineValues {
+pub struct GpioLineValues {
     pub bits: u64,
     pub mask: u64,
 }
@@ -96,6 +96,11 @@ pub struct GpioLineConfig {
 pub struct GpioLineRequest {
     pub offsets: [u32; GPIO_LINES_MAX],
     pub consumer: [u8; GPIO_MAX_NAME_SIZE],
+    pub config: GpioLineConfig,
+    pub num_lines: u32,
+    pub event_buffer_size: u32,
+    pub padding: [u32; 5],
+    pub fd: FileDescriptor,
 }
 
 pub mod line_flag {
@@ -115,10 +120,15 @@ pub mod line_flag {
 }
 
 mod ioctl_const {
-    pub const GET_LINE: usize = 0x07;
+    pub const GET_LINE: usize = 0x7;
+    pub const LINE_GET_VALUES: usize = 0xe;
+    pub const LINE_SET_VALUES: usize = 0xf;
 }
 
-pub fn get_line(chip_fd: FileDescriptor, request: &GpioLineRequest) -> Result<(), RawOsError> {
+pub fn get_line(
+    chip_fd: FileDescriptor,
+    request: &mut GpioLineRequest,
+) -> Result<FileDescriptor, RawOsError> {
     let retval = syscall!(
         syscall_number::IOCTL,
         chip_fd,
@@ -128,6 +138,74 @@ pub fn get_line(chip_fd: FileDescriptor, request: &GpioLineRequest) -> Result<()
     if retval < 0 {
         Err((-retval).into())
     } else {
+        Ok(request.fd)
+    }
+}
+
+pub fn get_values(line_fd: FileDescriptor, values: &mut GpioLineValues) -> Result<(), RawOsError> {
+    let retval = syscall!(
+        syscall_number::IOCTL,
+        line_fd,
+        ioctl_const::LINE_GET_VALUES,
+        values
+    );
+    if retval < 0 {
+        Err((-retval).into())
+    } else {
         Ok(())
+    }
+}
+
+pub fn set_values(line_fd: FileDescriptor, values: &GpioLineValues) -> Result<(), RawOsError> {
+    let retval = syscall!(
+        syscall_number::IOCTL,
+        line_fd,
+        ioctl_const::LINE_SET_VALUES,
+        values
+    );
+    if retval < 0 {
+        Err((-retval).into())
+    } else {
+        Ok(())
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use crate::platform::open;
+
+    use super::*;
+
+    #[test]
+    fn gpio_works() {
+        let chip_fd = open("/dev/gpiochip0\0", crate::platform::OpenFlags::ReadWrite).unwrap();
+        let mut consumer = [0; GPIO_MAX_NAME_SIZE];
+        consumer.copy_from_slice(b"");
+        let mut offsets = [0; GPIO_LINES_MAX];
+        offsets[0] = 0;
+
+        let mut req = GpioLineRequest {
+            offsets,
+            consumer,
+            num_lines: 4,
+            padding: [0; 5],
+            config: GpioLineConfig {
+                flags: line_flag::OUTPUT,
+                num_attrs: 0,
+                padding: [0; 5],
+                attrs: unsafe { std::mem::zeroed() },
+            },
+            event_buffer_size: 0,
+            fd: 0,
+        };
+        let line_fd = get_line(chip_fd, &mut req).unwrap();
+        set_values(
+            line_fd,
+            &GpioLineValues {
+                bits: 0xf,
+                mask: 0xf,
+            },
+        )
+        .unwrap();
     }
 }
