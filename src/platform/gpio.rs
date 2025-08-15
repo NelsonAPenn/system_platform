@@ -3,7 +3,8 @@ use crate::platform::syscall_macro::syscall;
 use super::{syscall_number, FileDescriptor, RawOsError};
 
 #[repr(C)]
-struct Gpio {
+#[derive(Debug)]
+pub struct Gpio {
     pub gpio: u32,
     pub flags: u64, // Is 32 on 32-bit?
     pub label: *const u8,
@@ -12,13 +13,27 @@ struct Gpio {
 const GPIO_MAX_NAME_SIZE: usize = 32;
 
 #[repr(C)]
-struct GpiochipInfo {
+#[derive(Debug)]
+pub struct GpioChipInfo {
     pub name: [u8; GPIO_MAX_NAME_SIZE],
     pub label: [u8; GPIO_MAX_NAME_SIZE],
     pub lines: u32,
 }
 
 #[repr(C)]
+#[derive(Debug)]
+pub struct GpioLineInfo {
+    pub name: [u8; GPIO_MAX_NAME_SIZE],
+    pub consumer: [u8; GPIO_MAX_NAME_SIZE],
+    pub offset: u32,
+    pub num_attrs: u32,
+    pub flags: u64,
+    pub attrs: [GpioLineAttribute; GPIO_LINE_NUM_ATTRS_MAX],
+    pub padding: [u32; 4],
+}
+
+#[repr(C)]
+#[derive(Debug)]
 pub struct GpioLineValues {
     pub bits: u64,
     pub mask: u64,
@@ -27,6 +42,7 @@ pub struct GpioLineValues {
 const GPIO_LINES_MAX: usize = 64;
 
 #[repr(C)]
+#[derive(Debug)]
 pub enum GpioLineAttribute {
     Flags {
         id: u32,
@@ -78,6 +94,7 @@ impl GpioLineAttribute {
 }
 
 #[repr(C)]
+#[derive(Debug)]
 pub struct GpioLineConfigAttribute {
     pub attr: GpioLineAttribute,
     pub mask: u64,
@@ -123,6 +140,8 @@ mod ioctl_const {
     pub const GET_LINE: usize = 0x7;
     pub const LINE_GET_VALUES: usize = 0xe;
     pub const LINE_SET_VALUES: usize = 0xf;
+    pub const GET_CHIP_INFO: usize = 0x1;
+    pub const GET_LINE_INFO: usize = 0x5;
 }
 
 pub fn get_line(
@@ -170,6 +189,42 @@ pub fn set_values(line_fd: FileDescriptor, values: &GpioLineValues) -> Result<()
     }
 }
 
+pub fn get_chip_info(chip_fd: FileDescriptor) -> Result<GpioChipInfo, RawOsError> {
+    let mut chip_info: GpioChipInfo = unsafe { std::mem::zeroed() };
+    let retval = syscall!(
+        syscall_number::IOCTL,
+        chip_fd,
+        ioctl_const::GET_CHIP_INFO,
+        &mut chip_info
+    );
+
+    if retval < 0 {
+        Err((-retval).into())
+    } else {
+        Ok(chip_info)
+    }
+}
+
+pub fn get_line_info(
+    chip_fd: FileDescriptor,
+    line_offset: u32,
+) -> Result<GpioLineInfo, RawOsError> {
+    let mut line_info: GpioLineInfo = unsafe { std::mem::zeroed() };
+    line_info.offset = line_offset;
+    let retval = syscall!(
+        syscall_number::IOCTL,
+        chip_fd,
+        ioctl_const::GET_LINE_INFO,
+        &mut line_info
+    );
+
+    if retval < 0 {
+        Err((-retval).into())
+    } else {
+        Ok(line_info)
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use crate::platform::open;
@@ -177,8 +232,18 @@ mod tests {
     use super::*;
 
     #[test]
+    fn gpio_info() {
+        let chip_fd = open("/dev/gpiochip0\0", crate::platform::OpenFlags::ReadWrite).unwrap();
+        let chip_info = get_chip_info(chip_fd).unwrap();
+        println!("{:?}", chip_info);
+        for line in 0..chip_info.lines {
+            println!("{:?}", get_line_info(chip_fd, line).unwrap());
+        }
+    }
+
     fn gpio_works() {
         let chip_fd = open("/dev/gpiochip0\0", crate::platform::OpenFlags::ReadWrite).unwrap();
+
         let mut consumer = [0; GPIO_MAX_NAME_SIZE];
         consumer.copy_from_slice(b"");
         let mut offsets = [0; GPIO_LINES_MAX];
