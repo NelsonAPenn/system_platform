@@ -137,11 +137,11 @@ pub mod line_flag {
 }
 
 mod ioctl_const {
-    pub const GET_LINE: usize = 0x7;
-    pub const LINE_GET_VALUES: usize = 0xe;
-    pub const LINE_SET_VALUES: usize = 0xf;
-    pub const GET_CHIP_INFO: usize = 0x1;
-    pub const GET_LINE_INFO: usize = 0x5;
+    pub const GET_LINE: usize = 0xc250b407;
+    pub const LINE_GET_VALUES: usize = 0xc010b40e;
+    pub const LINE_SET_VALUES: usize = 0xc010b40f;
+    pub const GET_CHIP_INFO: usize = 0x8044b401;
+    pub const GET_LINE_INFO: usize = 0xc100b405;
 }
 
 pub fn get_line(
@@ -196,7 +196,7 @@ pub fn get_chip_info(chip_fd: FileDescriptor) -> Result<GpioChipInfo, RawOsError
         syscall_number::IOCTL,
         chip_fd,
         ioctl_const::GET_CHIP_INFO,
-        &mut chip_info
+        (&mut chip_info as *mut GpioChipInfo)
     );
 
     if retval < 0 {
